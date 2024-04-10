@@ -1,0 +1,18 @@
+{
+  "name": "new-libdoc",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build --config .parcelrc",
+    "pretty": "prettier . --write"
+  },
+  "devDependencies": {
+    "parcel": "^2.12.0",
+    "parcel-transformer-plaintext": "^1.0.1",
+    "prettier": "3.2.5",
+    "typescript": "^5.4.4"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8"
+  }
+}
