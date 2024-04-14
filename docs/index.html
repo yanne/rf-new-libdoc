@@ -731,6 +731,84 @@ h4 {
   display: none;
 }
 </style>
+    <style>#introduction-container > h2, .doc > h1, .doc > h2, .section > h1, .section > h2 {
+  margin-top: 4rem;
+  margin-bottom: 1rem;
+}
+
+.doc > h3, .section > h3 {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.doc > h4, .section > h4 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.doc > p, .section > p {
+  margin-top: 1rem;
+  margin-bottom: .5rem;
+}
+
+.doc > :first-child {
+  margin-top: .1em;
+}
+
+.doc table {
+  border-collapse: collapse;
+  empty-cells: show;
+  background: none;
+  border: none;
+  font-size: .9em;
+  display: block;
+  overflow-y: auto;
+}
+
+.doc table th, .doc table td {
+  border: 1px solid var(--border-color);
+  background: none;
+  height: 1.2em;
+  padding: .1em .3em;
+}
+
+.doc table th {
+  text-align: center;
+  letter-spacing: .1em;
+}
+
+.doc pre {
+  letter-spacing: .05em;
+  background: var(--light-background-color);
+  border-radius: 3px;
+  padding: .3rem;
+  font-size: 1.1em;
+  overflow-y: auto;
+}
+
+.doc code, .docutils.literal {
+  letter-spacing: .05em;
+  background: var(--light-background-color);
+  border-radius: 3px;
+  padding: 1px;
+  font-size: 1.1em;
+}
+
+.doc li {
+  list-style-type: square;
+  list-style-position: inside;
+}
+
+.doc img {
+  border: 1px solid #ccc;
+}
+
+.doc hr {
+  background: #ccc;
+  border: 0;
+  height: 1px;
+}
+</style>
     <div id="root"></div>
     <script type="text/x-handlebars-template" id="base-template">
       <div class="base-container">
@@ -1063,14 +1141,14 @@ h4 {
       this[globalName] = mainExports;
     }
   }
-})({"fCbdY":[function(require,module,exports) {
+})({"a9IVs":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
-module.bundle.HMR_BUNDLE_ID = "bcc179bbafd39a7c";
+module.bundle.HMR_BUNDLE_ID = "dd506ee92a928c6a";
 "use strict";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, HMR_USE_SSE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
 import type {
@@ -1504,14 +1582,14 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
     });
 }
 
-},{}],"3qndx":[function(require,module,exports) {
+},{}],"9B49v":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _mainTs = require("./main.ts");
 var _mainTsDefault = parcelHelpers.interopDefault(_mainTs);
 var _testdataTs = require("./testdata.ts");
 (0, _mainTsDefault.default)((0, _testdataTs.DATA));
 
-},{"./main.ts":"jeorp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./testdata.ts":"2Y0gI"}],"jeorp":[function(require,module,exports) {
+},{"./main.ts":"jeorp","./testdata.ts":"2Y0gI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jeorp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _handlebars = require("handlebars");
@@ -1540,6 +1618,7 @@ function render(libdoc) {
     renderTemplate("base-template", "#root", libdoc);
     renderTemplate("importing-template", "#importing-container", libdoc);
     renderTemplate("keywords-template", "#keywords-container", libdoc);
+    createModal();
 }
 function renderTemplate(id, container, libdoc) {
     const template = document.getElementById(id)?.innerHTML;
@@ -1549,6 +1628,67 @@ function renderTemplate(id, container, libdoc) {
 function registerPartial(name, id) {
     const content = document.getElementById(id)?.innerHTML;
     (0, _handlebarsDefault.default).registerPartial(name, (0, _handlebarsDefault.default).compile(content));
+}
+function createModal() {
+    const modalBackground = document.createElement("div");
+    modalBackground.id = "modal-background";
+    modalBackground.classList.add("modal-background");
+    modalBackground.addEventListener("click", ({ target })=>{
+        if (target?.id === "modal-background") hideModal();
+    });
+    const modalCloseButton = document.createElement("button");
+    modalCloseButton.innerHTML = `<svg xmlns="
+http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="2em" height="2em" className="block" data-v-2754030d="" data-v-512b0344="">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
+              data-v-2754030d="" fill="var(--text-color)"></path></svg>`;
+    modalCloseButton.classList.add("modal-close-button");
+    const modalCloseButtonContainer = document.createElement("div");
+    modalCloseButtonContainer.classList.add("modal-close-button-container");
+    modalCloseButtonContainer.appendChild(modalCloseButton);
+    modalCloseButton.addEventListener("click", ()=>{
+        hideModal();
+    });
+    modalBackground.appendChild(modalCloseButtonContainer);
+    modalCloseButtonContainer.addEventListener("click", ()=>{
+        hideModal();
+    });
+    const modal = document.createElement("div");
+    modal.id = "modal";
+    modal.classList.add("modal");
+    modal.addEventListener("click", ({ target })=>{
+        if (target.tagName.toUpperCase() === "A") hideModal();
+    });
+    const modalContent = document.createElement("div");
+    modalContent.id = "modal-content";
+    modalContent.classList.add("modal-content");
+    modal.appendChild(modalContent);
+    modalBackground.appendChild(modal);
+    document.body.appendChild(modalBackground);
+    document.addEventListener("keydown", ({ key })=>{
+        if (key === "Escape") hideModal();
+    });
+}
+function showModal(content) {
+    const modalBackground = document.getElementById("modal-background");
+    const modal = document.getElementById("modal");
+    const modalContent = document.getElementById("modal-content");
+    modalBackground.classList.add("visible");
+    modal.classList.add("visible");
+    modalContent.appendChild(content.cloneNode(true));
+    document.body.style.overflow = "hidden";
+}
+function hideModal() {
+    const modalBackground = document.getElementById("modal-background");
+    const modal = document.getElementById("modal");
+    const modalContent = document.getElementById("modal-content");
+    modalBackground.classList.remove("visible");
+    modal.classList.remove("visible");
+    document.body.style.overflow = "auto";
+    if (window.location.hash.indexOf("#type-") == 0) history.pushState("", document.title, window.location.pathname);
+    // modal is hidden with a fading transition, timeout prevents premature emptying of modal
+    setTimeout(()=>{
+        modalContent.innerHTML = "";
+    }, 200);
 }
 exports.default = render;
 
@@ -13532,7 +13672,7 @@ const DATA = {
     typedocs: []
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fCbdY","3qndx"], "3qndx", "parcelRequire5525")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["a9IVs","9B49v"], "9B49v", "parcelRequire5525")
 
 </script>
   </body>
