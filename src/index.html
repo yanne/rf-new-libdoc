@@ -8,7 +8,7 @@
       @import "./styles.css";
     </style>
     <div id="root"></div>
-    <script id="base-template" type="text/x-handlebars-template">
+    <script type="text/x-handlebars-template" id="base-template">
       <div class="base-container">
         <input
           id="hamburger-menu-input"
@@ -69,6 +69,131 @@
                     /></g></g></g></g></svg>
         </a>
       </div>
+    </script>
+    <script type="text/x-handlebars-template" id="importing-template">
+      <h2 id="Importing">{{t "importing"}}</h2>
+      <div class="keywords">
+          {{#each inits}}
+          <div class="kw-row">
+            <div class="kw-overview">
+            {{#if this.args.length}}
+                <div class="args">
+                  <h4>{{t "arguments"}}</h4>
+                  <div class="arguments-list-container">
+                    <div class="arguments-list">
+                    {{#each this.args}}
+                      {{> arg }}
+                    {{/each}}
+                    </div>
+                  </div>
+                </div>
+            {{/if}}
+            {{#if this.doc}}
+              <div class="kw-docs">
+                <h4>{{t "doc"}}</h4>
+                <div class="kwdoc doc">{{{this.doc}}}</div>
+              </div>
+            {{/if}}
+          </div>
+          {{/each}}
+      </div>
+    </script>
+    <script type="text/x-handlebars-template" id="keywords-template">
+      <h2 id="Keywords">{{t "keywords"}}</h2>
+      <div class="keywords">
+          {{#each keywords}}
+          {{#unless this.hidden}}
+          {{>keyword this}}
+          {{/unless}}
+          {{/each}}
+          {{#each keywords}}
+          {{#if this.hidden}}
+          {{/if}}
+          {{/each}}
+      </div>
+    </script>
+    <script type="text/x-handlebars-template" id="keyword-template">
+      <div class="keyword-container {{#if hidden}}no-{{/if}}match" id="{{name}}">
+         <div class="keyword-name">
+              <h2>
+              <a class="kw-name" href="#{{encodeURIComponent name}}"
+                 title="{{t 'kwLink'}}">{{name}}</a>
+              </h2>
+         </div>
+         <div class="keyword-content">
+            <div class="kw-overview">
+              {{#if args.length}}
+                <div class="args">
+                  <h4>{{t "arguments"}}</h4>
+                  <div class="arguments-list-container">
+                    <div class="arguments-list">
+                    {{#each args}}
+                      {{>arg this}}
+                    {{/each}}
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
+              {{#if returnType}}
+              <div class="return-type">
+                <h4>{{t "returnType"}}</h4>
+                <span class="arg-type">
+                {{>typeInfo returnType}}
+                </span>
+              </div>
+              {{/if}}
+            </div>
+            {{#if doc}}
+              <div class="kw-docs">
+                <h4>{{t "doc"}}</h4>
+                <div class="kwdoc doc">{{{doc}}}</div>
+              </div>
+            {{/if}}
+         </div>
+      </div>
+    </script>
+    <script type="text/x-handlebars-template" id="argument-template">
+          <span class="arg-name {{#if required}}arg-required{{else}}arg-optional{{/if}}" title="{{t 'argName'}}">
+          {{#ifEquals kind "VAR_POSITIONAL"}}<span class="arg-kind" title="{{t 'varArgs'}}">*</span>{{/ifEquals}}
+          {{#ifEquals kind "VAR_NAMED"}}<span class="arg-kind" title="{{t 'varNamedArgs'}}">**</span>{{/ifEquals}}
+          {{#ifEquals kind "NAMED_ONLY"}}<span class="arg-kind" title="{{t 'namedOnlyArg'}}">&#x1F3F7;</span>{{/ifEquals}}
+          {{#ifEquals kind "POSITIONAL_ONLY"}}<span class="arg-kind" title="{{t 'posOnlyArg'}}">&#x27F6;</span>{{/ifEquals}}
+          {{name}}
+          </span>
+        {{#ifNotNull defaultValue}}
+        <div class="arg-default-container">
+          <span class="arg-default-eq">=</span>
+          <span class="arg-default-value" title="{{t 'defaultTitle'}}">{{defaultValue}}</span>
+        </div>
+      {{/ifNotNull}}
+
+      {{#if type}}
+        <span class="arg-type">
+            {{> typeInfo type}}
+        </span>
+      {{/if}}
+    </script>
+    <script type="text/x-handlebars-template" id="type-info-template">
+      {{#if union}}
+        {{#each nested}}
+          {{> typeInfo this}}
+          {{#unlessLast this.length @index}}|{{/unlessLast}}
+        {{/each}}
+      {{else}}
+        {{#if typedoc}}
+          <a style="cursor: pointer;" class="type" title="{{t 'typeInfoDialog'}}" onclick="showModal(document.querySelector('#type-modal-${typedoc}'))">{{name}}</a>
+        {{else}}
+          <span class="type">{{name}}</span>
+        {{/if}}
+        {{#if nested.length}}
+          [
+          {{#each nested}}
+            {{> typeInfor this}}
+            {{#unlessLast this.length @index}},{{/unlessLast}}
+          {{/each}}
+          ]
+        {{/if}}
+      {{/if}}
     </script>
     <script type="module">
       import render from "./main.ts";
