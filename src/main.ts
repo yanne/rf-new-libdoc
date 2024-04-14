@@ -1,6 +1,6 @@
 import Handlebars from "handlebars";
 import { Libdoc } from "./testdata";
-import Translate from "./translate";
+import Translate from "./i18n/translate";
 
 function render(libdoc: Libdoc) {
   Handlebars.registerHelper("t", function (key) {
