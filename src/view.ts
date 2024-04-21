@@ -1,3 +1,4 @@
+import Mark from "mark.js"
 import { Libdoc } from "./testdata";
 import Handlebars from "handlebars";
 import Storage from "./storage";
@@ -148,35 +149,37 @@ class View {
     }
   }
 
-  highlightMatches(string, include, givenSearchTime?: number) {
+  highlightMatches(string: string, include, givenSearchTime?: number) {
     if (givenSearchTime && givenSearchTime !== this.searchTime) {
       return;
     }
-    const shortcuts = document.querySelector("#shortcuts-container .match")!;
-    const keywords = document.querySelector("#keywords-container .match")!;
+    const shortcuts = document.querySelectorAll("#shortcuts-container .match");
+    const keywords = document.querySelectorAll("#keywords-container .match");
     if (include.name) {
-      console.log("FIXME: highlight name");
-      //  shortcuts.highlight(string);
-      //  keywords.find('.kw').highlight(string);
+      new Mark(shortcuts).mark(string)
+      new Mark(keywords).mark(string)
     }
     if (include.args) {
-      console.log("FIXME: highlight args");
-      //keywords.find('.args').highlight(string);
+      new Mark(document.querySelectorAll("#keywords-container .match .args")).mark(string)
     }
     if (include.doc) {
-      console.log("FIXME: highlight doc");
-      //keywords.find('.doc').highlight(string);
+      new Mark(document.querySelectorAll("#keywords-container .match .doc")).mark(string)
     }
     if (include.tags) {
       console.log("FIXME: highlight tags");
-      //  var matches = keywords.find('.tags').find('a').add(
-      //          $('#tags-shortcuts-container').find('a'));
-      //  if (include.tagsExact) {
-      //      matches = matches.filter(function (index, tag) {
-      //          return $(tag).text().toUpperCase() === string.toUpperCase();
-      //      });
-      //  }
-      //  matches.highlight(string);
+      const matches = document.querySelectorAll("#keywords-container .match .tags a, #tags-shortcuts-container .match .tags a")
+       if (include.tagsExact) {
+          const filtered: Array<Element> = []
+          for (const elem of matches) {
+            console.log(elem.textContent)
+            if (elem.textContent?.toUpperCase() == string.toUpperCase())
+              filtered.push(elem)
+          }
+          new Mark(filtered).mark(string)
+       } else {
+        new Mark(matches).mark(string)
+       }
+
     }
   }
 
