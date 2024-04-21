@@ -14,5 +14,6 @@
   "namedOnlyArg": "Named only argument",
   "posOnlyArg": "Positional only argument",
   "defaultTitle": "Default value that is used if no value is given",
-  "typeInfoDialog": "Click to show type information"
+  "typeInfoDialog": "Click to show type information",
+  "search": "Search"
 }

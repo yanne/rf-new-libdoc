@@ -13,6 +13,7 @@ type Libdoc = {
   inits: Array<any>;
   keywords: Array<any>;
   typedocs: Array<any>;
+  selectedTag: string;
 };
 
 const DATA: Libdoc = {
