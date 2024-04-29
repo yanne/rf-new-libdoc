@@ -1,4 +1,4 @@
-import Mark from "mark.js"
+import Mark from "mark.js";
 import { Libdoc } from "./testdata";
 import Handlebars from "handlebars";
 import Storage from "./storage";
@@ -73,6 +73,14 @@ class View {
     if (libdoc.tags.length) {
       libdoc.selectedTag = selectedTag;
       renderTemplate("tags-shortcuts", libdoc);
+      document.getElementById("tags-shortcuts-container")!.onchange = (e) => {
+        const value = (e.target as HTMLSelectElement).selectedOptions[0].value;
+        if (value != "") {
+          this.tagSearch(value);
+        } else {
+          this.clearTagSearch();
+        }
+      };
     }
     this.scrollToHash();
     setTimeout(() => {
@@ -109,7 +117,7 @@ class View {
     }
   }
 
-  tagSearch(tag: string, hash: string) {
+  tagSearch(tag: string, hash?: string) {
     (
       document.getElementsByClassName("search-input")[0] as HTMLInputElement
     ).value = "";
@@ -156,30 +164,33 @@ class View {
     const shortcuts = document.querySelectorAll("#shortcuts-container .match");
     const keywords = document.querySelectorAll("#keywords-container .match");
     if (include.name) {
-      new Mark(shortcuts).mark(string)
-      new Mark(keywords).mark(string)
+      new Mark(shortcuts).mark(string);
+      new Mark(keywords).mark(string);
     }
     if (include.args) {
-      new Mark(document.querySelectorAll("#keywords-container .match .args")).mark(string)
+      new Mark(
+        document.querySelectorAll("#keywords-container .match .args"),
+      ).mark(string);
     }
     if (include.doc) {
-      new Mark(document.querySelectorAll("#keywords-container .match .doc")).mark(string)
+      new Mark(
+        document.querySelectorAll("#keywords-container .match .doc"),
+      ).mark(string);
     }
     if (include.tags) {
-      console.log("FIXME: highlight tags");
-      const matches = document.querySelectorAll("#keywords-container .match .tags a, #tags-shortcuts-container .match .tags a")
-       if (include.tagsExact) {
-          const filtered: Array<Element> = []
-          for (const elem of matches) {
-            console.log(elem.textContent)
-            if (elem.textContent?.toUpperCase() == string.toUpperCase())
-              filtered.push(elem)
-          }
-          new Mark(filtered).mark(string)
-       } else {
-        new Mark(matches).mark(string)
-       }
-
+      const matches = document.querySelectorAll(
+        "#keywords-container .match .tags a, #tags-shortcuts-container .match .tags a",
+      );
+      if (include.tagsExact) {
+        const filtered: Array<Element> = [];
+        for (const elem of matches) {
+          if (elem.textContent?.toUpperCase() == string.toUpperCase())
+            filtered.push(elem);
+        }
+        new Mark(filtered).mark(string);
+      } else {
+        new Mark(matches).mark(string);
+      }
     }
   }
 
@@ -258,14 +269,15 @@ class View {
     renderTemplate("keywords", this.libdoc);
     // renderTemplate("data-types", this.libdoc);
     if (this.libdoc.tags.length) {
-      renderTemplate("tags", this.libdoc);
+      renderTemplate("tags-shortcuts", this.libdoc);
     }
     document.getElementById("keyword-statistics-header")!.innerText =
       `${this.libdoc.keywords.length}`;
-    if (this.libdoc.typedocs.length) {
-      document.getElementById("type-statistics-header")!.innerText =
-        `${this.libdoc.typedocs.length}`;
-    }
+    // FIXME: is this valid???
+    // if (this.libdoc.typedocs.length) {
+    //     document.getElementById("type-statistics-header")!.innerText =
+    //       `${this.libdoc.typedocs.length}`;
+    //   }
     history.replaceState && history.replaceState(null, "", location.pathname);
   }
 

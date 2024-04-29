@@ -112,10 +112,7 @@
           <button class="clear-search" onclick="clearSearch()">&#10005;</button>
         </div>
         {{#if tags.length}}
-          <select
-            id="tags-shortcuts-container"
-            onchange="location = this.value;"
-          >
+          <select id="tags-shortcuts-container">
           </select>
         {{/if}}
         <div class="keywords-overview-header-row">
@@ -145,7 +142,7 @@
           <li>
             <a
               href="#{{encodeURIComponent this.name}}"
-              class="match"
+              class="no-match"
               title="{{value.shortdoc}}"
             >{{this.name}}</a>
           </li>
@@ -226,6 +223,13 @@
             {{> typeInfo type}}
         </span>
       {{/if}}
+    </script>
+    <script type="text/x-handlebars-template" id="tags-shortcuts-template">
+      <option value="" {{#ifEquals selectedTag ""}}selected{{/ifEquals}}>- Show all tags -</option>
+      {{#each tags}}
+        <option {{#ifEquals ../selectedTag this}}selected{{/ifEquals}}>{{this}}
+        </option>
+      {{/each}}
     </script>
     <script type="text/x-handlebars-template" id="type-info-template">
       {{#if union}}
