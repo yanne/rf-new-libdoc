@@ -32,10 +32,16 @@ class View {
     Handlebars.registerHelper("ifNotNull", function (arg1, options) {
       return arg1 !== null ? options.fn(this) : options.inverse(this);
     });
-
     Handlebars.registerHelper("unlessLast", function (length, index, options) {
       return index < length - 1 ? options.fn(this) : options.inverse(this);
     });
+    Handlebars.registerHelper("ifContains", function (elems, value, options) {
+      return elems.indexOf(value) != -1
+        ? options.fn(this)
+        : options.inverse(this);
+    });
+    window.showModal = showModal;
+    window.hideModal = hideModal;
   }
 
   render(libdoc: Libdoc) {
@@ -44,6 +50,7 @@ class View {
     registerPartial("arg", "argument-template");
     registerPartial("typeInfo", "type-info-template");
     registerPartial("keyword", "keyword-template");
+    registerPartial("dataType", "data-type-template");
     renderTemplate("base", libdoc, "#root");
     renderTemplate("importing", libdoc);
     renderTemplate("shortcuts", libdoc);
@@ -63,6 +70,7 @@ class View {
     renderTemplate("keywords", libdoc);
     document.getElementById("keyword-statistics-header")!.innerText =
       "" + libdoc.keywords.length;
+    renderTemplate("data-types", libdoc);
     renderTemplate("footer", libdoc);
     const params = new URLSearchParams(window.location.search);
     let selectedTag = "";
