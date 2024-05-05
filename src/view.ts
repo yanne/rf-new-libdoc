@@ -98,18 +98,33 @@ class View {
         this.openKeywordWall();
       }
     }, 0);
-    window.addEventListener("hashchange", function() {
-      (document.getElementsByClassName("hamburger-menu")[0]! as HTMLInputElement).checked = false;
-    }, false);
-    window.addEventListener("hashchange", function() {
-        if (window.location.hash.indexOf('#type-') == 0) {
-            const hash = '#type-modal-' + decodeURI(window.location.hash.slice(6));
-            const typeDoc = document.querySelector(".data-types")!.querySelector(hash);
-            if (typeDoc) {
-              showModal(typeDoc);
-            }
+    window.addEventListener(
+      "hashchange",
+      function () {
+        (
+          document.getElementsByClassName(
+            "hamburger-menu",
+          )[0]! as HTMLInputElement
+        ).checked = false;
+      },
+      false,
+    );
+    window.addEventListener(
+      "hashchange",
+      function () {
+        if (window.location.hash.indexOf("#type-") == 0) {
+          const hash =
+            "#type-modal-" + decodeURI(window.location.hash.slice(6));
+          const typeDoc = document
+            .querySelector(".data-types")!
+            .querySelector(hash);
+          if (typeDoc) {
+            showModal(typeDoc);
+          }
         }
-    }, false);
+      },
+      false,
+    );
     createModal();
   }
 
