@@ -51,9 +51,9 @@ class View {
     registerPartial("typeInfo", "type-info-template");
     registerPartial("keyword", "keyword-template");
     registerPartial("dataType", "data-type-template");
-    renderTemplate("base", libdoc, "#root");
-    renderTemplate("importing", libdoc);
-    renderTemplate("shortcuts", libdoc);
+    this.renderTemplate("base", libdoc, "#root");
+    this.renderTemplate("importing", libdoc);
+    this.renderTemplate("shortcuts", libdoc);
     document
       .getElementById("toggle-keyword-shortcuts")!
       .addEventListener("click", () => this.toggleShortcuts());
@@ -63,15 +63,15 @@ class View {
     document
       .querySelector(".search-input")!
       .addEventListener("keydown", () => delay(() => this.searching(), 150));
-    renderTemplate("keyword-shortcuts", libdoc);
+    this.renderTemplate("keyword-shortcuts", libdoc);
     document
       .querySelectorAll("a.match")
       .forEach((e) => e.addEventListener("click", this.closeMenu));
-    renderTemplate("keywords", libdoc);
+    this.renderTemplate("keywords", libdoc);
     document.getElementById("keyword-statistics-header")!.innerText =
       "" + libdoc.keywords.length;
-    renderTemplate("data-types", libdoc);
-    renderTemplate("footer", libdoc);
+    this.renderTemplate("data-types", libdoc);
+    this.renderTemplate("footer", libdoc);
     const params = new URLSearchParams(window.location.search);
     let selectedTag = "";
     if (params.has("tag")) {
@@ -80,7 +80,7 @@ class View {
     }
     if (libdoc.tags.length) {
       libdoc.selectedTag = selectedTag;
-      renderTemplate("tags-shortcuts", libdoc);
+      this.renderTemplate("tags-shortcuts", libdoc);
       document.getElementById("tags-shortcuts-container")!.onchange = (e) => {
         const value = (e.target as HTMLSelectElement).selectedOptions[0].value;
         if (value != "") {
@@ -98,6 +98,18 @@ class View {
         this.openKeywordWall();
       }
     }, 0);
+    window.addEventListener("hashchange", function() {
+      (document.getElementsByClassName("hamburger-menu")[0]! as HTMLInputElement).checked = false;
+    }, false);
+    window.addEventListener("hashchange", function() {
+        if (window.location.hash.indexOf('#type-') == 0) {
+            const hash = '#type-modal-' + decodeURI(window.location.hash.slice(6));
+            const typeDoc = document.querySelector(".data-types")!.querySelector(hash);
+            if (typeDoc) {
+              showModal(typeDoc);
+            }
+        }
+    }, false);
     createModal();
   }
 
@@ -224,11 +236,11 @@ class View {
       if (!kw.hidden) keywordMatchCount++;
       return kw;
     });
-    renderTemplate("keyword-shortcuts", result as Libdoc);
-    renderTemplate("keywords", result as Libdoc);
+    this.renderTemplate("keyword-shortcuts", result as Libdoc);
+    this.renderTemplate("keywords", result as Libdoc);
     if (this.libdoc.tags.length) {
       this.libdoc.selectedTag = include.tagsExact ? pattern : "";
-      renderTemplate("tags-shortcuts", this.libdoc);
+      this.renderTemplate("tags-shortcuts", this.libdoc);
     }
     document.getElementById("keyword-statistics-header")!.innerText =
       keywordMatchCount + " / " + result.keywords.length;
@@ -273,11 +285,11 @@ class View {
   }
 
   resetKeywords() {
-    renderTemplate("keyword-shortcuts", this.libdoc);
-    renderTemplate("keywords", this.libdoc);
+    this.renderTemplate("keyword-shortcuts", this.libdoc);
+    this.renderTemplate("keywords", this.libdoc);
     // renderTemplate("data-types", this.libdoc);
     if (this.libdoc.tags.length) {
-      renderTemplate("tags-shortcuts", this.libdoc);
+      this.renderTemplate("tags-shortcuts", this.libdoc);
     }
     document.getElementById("keyword-statistics-header")!.innerText =
       `${this.libdoc.keywords.length}`;
@@ -299,20 +311,21 @@ class View {
     }
     this.resetKeywords();
   }
-}
 
-function renderTemplate(
-  name: string,
-  libdoc: Libdoc,
-  container_selector: string = "",
-) {
-  const template = document.getElementById(`${name}-template`)?.innerHTML;
-  const compiled_template = Handlebars.compile(template);
-  if (container_selector === "") {
-    container_selector = `#${name}-container`;
+  renderTemplate(
+    name: string,
+    libdoc: Libdoc,
+    container_selector: string = "",
+  ) {
+    const template = document.getElementById(`${name}-template`)?.innerHTML;
+    const compiled_template = Handlebars.compile(template);
+    if (container_selector === "") {
+      container_selector = `#${name}-container`;
+    }
+    const target = document.body.querySelector(container_selector)!;
+    console.log(this)
+    target.innerHTML = compiled_template(libdoc);
   }
-  const target = document.body.querySelector(container_selector)!;
-  target.innerHTML = compiled_template(libdoc);
 }
 
 function registerPartial(name: string, id: string) {

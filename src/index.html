@@ -109,7 +109,7 @@
             type="text"
             class="search-input"
           />
-          <button class="clear-search" onclick="clearSearch()">&#10005;</button>
+          <button class="clear-search">&#10005;</button>
         </div>
         {{#if tags.length}}
           <select id="tags-shortcuts-container">
@@ -159,6 +159,7 @@
           {{/each}}
           {{#each keywords}}
           {{#if this.hidden}}
+          {{>keyword this}}
           {{/if}}
           {{/each}}
       </div>
@@ -194,6 +195,18 @@
               </div>
               {{/if}}
             </div>
+            {{#if tags.length}}
+            <div class="tags">
+              <h4>Tags</h4>
+              <span class="kw-tags">
+              {{#each tags}}
+                <a href="javascript:tagSearch('{{this}}')"
+                  title="Show keywords with this tag">{{this}}</a>{{#unlessLast ../tags.length @index}},<br>{{/unlessLast}}
+              {{/each}}
+              </span>
+            </div>
+          {{/if}}
+        </div>
             {{#if doc}}
               <div class="kw-docs">
                 <h4>{{t "doc"}}</h4>
@@ -235,7 +248,7 @@
       {{#if union}}
         {{#each nested}}
           {{> typeInfo this}}
-          {{#unlessLast this.length @index}}|{{/unlessLast}}
+          {{#unlessLast ../nested.length @index}}|{{/unlessLast}}
         {{/each}}
       {{else}}
         {{#if typedoc}}
@@ -244,18 +257,18 @@
           <span class="type">{{name}}</span>
         {{/if}}
         {{#if nested.length}}
-          [
+          <span>[</span>
           {{#each nested}}
             {{> typeInfo this}}
-            {{#unlessLast this.length @index}},{{/unlessLast}}
+            {{#unlessLast ../nested.length @index}},{{/unlessLast}}
           {{/each}}
-          ]
+          <span>]</span>
         {{/if}}
       {{/if}}
     </script>
     <script type="text/x-handlebars-template" id="data-types-template">
       {{#if typedocs.length}}
-        <h2 id="Data types">Data types</h2>
+        <h2 id="Data types">{{t "dataTypes"}}</h2>
         <div class="data-types">
           {{#each typedocs}}
             {{> dataType this}}
@@ -279,7 +292,6 @@
               <div class="dt-members">
                 <h4>Allowed Values</h4>
                 <ul class="enum-type-members">
-                  {{log this}}
                   {{#each members}}
                   <li>
                     <span class="enum-member">{{this.name}}</span>
@@ -291,6 +303,7 @@
                 </ul>
               </div>
             {{else}}
+              {{# if items}}
               <div class="dt-items">
                 <h4>Dictionary Structure</h4>
                   <div class="typed-dict-annotation">
@@ -309,6 +322,7 @@
                     }</span>
                   </div>
               </div>
+              {{/if}}
             {{/if}}
             {{#if accepts.length}}
               <div class="dt-docs">
@@ -325,7 +339,7 @@
                 <h4>Usages</h4>
                 <ul class="dt-usages-list">
                   {{#each usages}}
-                    <li><a href="#${encodeURIComponent($value)}">{{this}}</a></li>
+                    <li><a href="#{{encodeURIComponent this}}">{{this}}</a></li>
                   {{/each}}
                 </ul>
               </div>
