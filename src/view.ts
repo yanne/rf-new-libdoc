@@ -67,7 +67,7 @@ class View {
     document
       .querySelectorAll("a.match")
       .forEach((e) => e.addEventListener("click", this.closeMenu));
-    this.renderTemplate("keywords", libdoc);
+    this.renderKeywords(libdoc);
     document.getElementById("keyword-statistics-header")!.innerText =
       "" + libdoc.keywords.length;
     this.renderTemplate("data-types", libdoc);
@@ -126,6 +126,15 @@ class View {
       false,
     );
     createModal();
+  }
+
+  private renderKeywords(libdoc: Libdoc) {
+    this.renderTemplate("keywords", libdoc);
+    document.querySelectorAll(".kw-tags span").forEach((elem) => {
+      elem.addEventListener("click", (e) => {
+        this.tagSearch((e.target! as HTMLSpanElement).innerText);
+      });
+    });
   }
 
   setTheme() {
@@ -252,7 +261,7 @@ class View {
       return kw;
     });
     this.renderTemplate("keyword-shortcuts", result as Libdoc);
-    this.renderTemplate("keywords", result as Libdoc);
+    this.renderKeywords(result as Libdoc);
     if (this.libdoc.tags.length) {
       this.libdoc.selectedTag = include.tagsExact ? pattern : "";
       this.renderTemplate("tags-shortcuts", this.libdoc);
@@ -301,7 +310,7 @@ class View {
 
   resetKeywords() {
     this.renderTemplate("keyword-shortcuts", this.libdoc);
-    this.renderTemplate("keywords", this.libdoc);
+    this.renderKeywords(this.libdoc);
     // renderTemplate("data-types", this.libdoc);
     if (this.libdoc.tags.length) {
       this.renderTemplate("tags-shortcuts", this.libdoc);

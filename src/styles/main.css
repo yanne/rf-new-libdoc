@@ -351,6 +351,14 @@ input.hamburger-menu:checked ~ span.hamburger-menu-3 {
   display: flex;
 }
 
+.tag-link {
+  cursor: pointer;
+}
+
+.tag-link:hover {
+  text-decoration: underline;
+}
+
 .arguments-list .arg-kind {
   color: transparent;
   text-shadow: 0 0 0 var(--less-important-text-color);
