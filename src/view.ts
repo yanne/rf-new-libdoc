@@ -323,7 +323,6 @@ class View {
       container_selector = `#${name}-container`;
     }
     const target = document.body.querySelector(container_selector)!;
-    console.log(this)
     target.innerHTML = compiled_template(libdoc);
   }
 }
