@@ -3,23 +3,21 @@ import { Libdoc } from "./testdata";
 import Handlebars from "handlebars";
 import Storage from "./storage";
 import Translate from "./i18n/translate";
-import { regexpEscape } from "./util";
-
-const delay = (function () {
-  let timer = 0;
-  return function (callback, ms) {
-    clearTimeout(timer);
-    timer = setTimeout(callback, ms);
-  };
-})();
+import { createModal, showModal } from "./modal";
+import { regexpEscape, delay } from "./util";
 
 class View {
   storage: Storage;
   libdoc: Libdoc;
   searchTime: number;
 
-  constructor(storage: Storage, translate: Translate) {
+  constructor(libdoc: Libdoc, storage: Storage, translate: Translate) {
+    this.libdoc = libdoc;
     this.storage = storage;
+    this.initTemplating(translate);
+  }
+
+  private initTemplating(translate: Translate) {
     Handlebars.registerHelper("t", function (key) {
       return translate.getTranslation(key);
     });
@@ -32,28 +30,24 @@ class View {
     Handlebars.registerHelper("ifNotNull", function (arg1, options) {
       return arg1 !== null ? options.fn(this) : options.inverse(this);
     });
-    Handlebars.registerHelper("unlessLast", function (length, index, options) {
-      return index < length - 1 ? options.fn(this) : options.inverse(this);
-    });
     Handlebars.registerHelper("ifContains", function (elems, value, options) {
       return elems.indexOf(value) != -1
         ? options.fn(this)
         : options.inverse(this);
     });
-    window.showModal = showModal;
-    window.hideModal = hideModal;
-  }
-
-  render(libdoc: Libdoc) {
-    this.libdoc = libdoc;
-    this.setTheme();
     registerPartial("arg", "argument-template");
     registerPartial("typeInfo", "type-info-template");
     registerPartial("keyword", "keyword-template");
     registerPartial("dataType", "data-type-template");
-    this.renderTemplate("base", libdoc, "#root");
-    this.renderTemplate("importing", libdoc);
-    this.renderTemplate("shortcuts", libdoc);
+  }
+
+  render() {
+    document.title = this.libdoc.name;
+    this.setTheme();
+    this.renderTemplate("base", this.libdoc, "#root");
+    this.renderTemplate("importing");
+    this.registerTypeDocHandlers("#importing-container");
+    this.renderTemplate("shortcuts");
     document
       .getElementById("toggle-keyword-shortcuts")!
       .addEventListener("click", () => this.toggleShortcuts());
@@ -63,24 +57,24 @@ class View {
     document
       .querySelector(".search-input")!
       .addEventListener("keydown", () => delay(() => this.searching(), 150));
-    this.renderTemplate("keyword-shortcuts", libdoc);
+    this.renderTemplate("keyword-shortcuts");
     document
       .querySelectorAll("a.match")
       .forEach((e) => e.addEventListener("click", this.closeMenu));
-    this.renderKeywords(libdoc);
+    this.renderKeywords();
     document.getElementById("keyword-statistics-header")!.innerText =
-      "" + libdoc.keywords.length;
-    this.renderTemplate("data-types", libdoc);
-    this.renderTemplate("footer", libdoc);
+      "" + this.libdoc.keywords.length;
+    this.renderTemplate("data-types");
+    this.renderTemplate("footer");
     const params = new URLSearchParams(window.location.search);
     let selectedTag = "";
     if (params.has("tag")) {
       selectedTag = params.get("tag")!;
       this.tagSearch(selectedTag, window.location.hash);
     }
-    if (libdoc.tags.length) {
-      libdoc.selectedTag = selectedTag;
-      this.renderTemplate("tags-shortcuts", libdoc);
+    if (this.libdoc.tags.length) {
+      this.libdoc.selectedTag = selectedTag;
+      this.renderTemplate("tags-shortcuts");
       document.getElementById("tags-shortcuts-container")!.onchange = (e) => {
         const value = (e.target as HTMLSelectElement).selectedOptions[0].value;
         if (value != "") {
@@ -93,7 +87,7 @@ class View {
     this.scrollToHash();
     setTimeout(() => {
       document.getElementById("keyword-statistics-header")!.innerText =
-        "" + libdoc.keywords.length;
+        "" + this.libdoc.keywords.length;
       if (this.storage.get("keyword-wall") === "open") {
         this.openKeywordWall();
       }
@@ -128,13 +122,26 @@ class View {
     createModal();
   }
 
-  private renderKeywords(libdoc: Libdoc) {
+  private registerTypeDocHandlers(container: string) {
+    document.querySelectorAll(`${container} a.type`).forEach((elem) =>
+      elem.addEventListener("click", (e) => {
+        const typeDoc = (e.target as HTMLElement).dataset.typedoc;
+        showModal(document.querySelector(`#type-modal-${typeDoc}`));
+      }),
+    );
+  }
+
+  private renderKeywords(libdoc: Libdoc | null = null) {
+    if (libdoc == null) {
+      libdoc = this.libdoc;
+    }
     this.renderTemplate("keywords", libdoc);
     document.querySelectorAll(".kw-tags span").forEach((elem) => {
       elem.addEventListener("click", (e) => {
         this.tagSearch((e.target! as HTMLSpanElement).innerText);
       });
     });
+    this.registerTypeDocHandlers("#keywords-container");
   }
 
   setTheme() {
@@ -238,7 +245,12 @@ class View {
     }
   }
 
-  markMatches(pattern, include, givenSearchTime?: number, callback?: Function) {
+  markMatches(
+    pattern,
+    include,
+    givenSearchTime?: number,
+    callback?: FrameRequestCallback,
+  ) {
     if (givenSearchTime && givenSearchTime !== this.searchTime) {
       return;
     }
@@ -264,7 +276,7 @@ class View {
     this.renderKeywords(result as Libdoc);
     if (this.libdoc.tags.length) {
       this.libdoc.selectedTag = include.tagsExact ? pattern : "";
-      this.renderTemplate("tags-shortcuts", this.libdoc);
+      this.renderTemplate("tags-shortcuts");
     }
     document.getElementById("keyword-statistics-header")!.innerText =
       keywordMatchCount + " / " + result.keywords.length;
@@ -309,19 +321,13 @@ class View {
   }
 
   resetKeywords() {
-    this.renderTemplate("keyword-shortcuts", this.libdoc);
-    this.renderKeywords(this.libdoc);
-    // renderTemplate("data-types", this.libdoc);
+    this.renderTemplate("keyword-shortcuts");
+    this.renderKeywords();
     if (this.libdoc.tags.length) {
-      this.renderTemplate("tags-shortcuts", this.libdoc);
+      this.renderTemplate("tags-shortcuts");
     }
     document.getElementById("keyword-statistics-header")!.innerText =
       `${this.libdoc.keywords.length}`;
-    // FIXME: is this valid???
-    // if (this.libdoc.typedocs.length) {
-    //     document.getElementById("type-statistics-header")!.innerText =
-    //       `${this.libdoc.typedocs.length}`;
-    //   }
     history.replaceState && history.replaceState(null, "", location.pathname);
   }
 
@@ -338,14 +344,19 @@ class View {
 
   renderTemplate(
     name: string,
-    libdoc: Libdoc,
+    libdoc: Libdoc | null = null,
     container_selector: string = "",
   ) {
     const template = document.getElementById(`${name}-template`)?.innerHTML;
     const compiled_template = Handlebars.compile(template);
+
+    if (libdoc == null) {
+      libdoc = this.libdoc;
+    }
     if (container_selector === "") {
       container_selector = `#${name}-container`;
     }
+
     const target = document.body.querySelector(container_selector)!;
     target.innerHTML = compiled_template(libdoc);
   }
@@ -354,76 +365,6 @@ class View {
 function registerPartial(name: string, id: string) {
   const content = document.getElementById(id)?.innerHTML;
   Handlebars.registerPartial(name, Handlebars.compile(content));
-}
-
-function createModal() {
-  const modalBackground = document.createElement("div");
-  modalBackground.id = "modal-background";
-  modalBackground.classList.add("modal-background");
-  modalBackground.addEventListener("click", ({ target }) => {
-    if (target?.id === "modal-background") hideModal();
-  });
-
-  const modalCloseButton = document.createElement("button");
-  modalCloseButton.innerHTML = `<svg xmlns="
-  http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="2em" height="2em" className="block" data-v-2754030d="" data-v-512b0344="">
-          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
-                data-v-2754030d="" fill="var(--text-color)"></path></svg>`;
-  modalCloseButton.classList.add("modal-close-button");
-  const modalCloseButtonContainer = document.createElement("div");
-  modalCloseButtonContainer.classList.add("modal-close-button-container");
-  modalCloseButtonContainer.appendChild(modalCloseButton);
-  modalCloseButton.addEventListener("click", () => {
-    hideModal();
-  });
-  modalBackground.appendChild(modalCloseButtonContainer);
-  modalCloseButtonContainer.addEventListener("click", () => {
-    hideModal();
-  });
-
-  const modal = document.createElement("div");
-  modal.id = "modal";
-  modal.classList.add("modal");
-  modal.addEventListener("click", ({ target }) => {
-    if (target.tagName.toUpperCase() === "A") hideModal();
-  });
-
-  const modalContent = document.createElement("div");
-  modalContent.id = "modal-content";
-  modalContent.classList.add("modal-content");
-  modal.appendChild(modalContent);
-
-  modalBackground.appendChild(modal);
-  document.body.appendChild(modalBackground);
-  document.addEventListener("keydown", ({ key }) => {
-    if (key === "Escape") hideModal();
-  });
-}
-
-function showModal(content) {
-  const modalBackground = document.getElementById("modal-background");
-  const modal = document.getElementById("modal");
-  const modalContent = document.getElementById("modal-content");
-  modalBackground.classList.add("visible");
-  modal.classList.add("visible");
-  modalContent.appendChild(content.cloneNode(true));
-  document.body.style.overflow = "hidden";
-}
-
-function hideModal() {
-  const modalBackground = document.getElementById("modal-background");
-  const modal = document.getElementById("modal");
-  const modalContent = document.getElementById("modal-content");
-
-  modalBackground.classList.remove("visible");
-  modal.classList.remove("visible");
-  document.body.style.overflow = "auto";
-  if (window.location.hash.indexOf("#type-") == 0)
-    history.pushState("", document.title, window.location.pathname);
-  // modal is hidden with a fading transition, timeout prevents premature emptying of modal
-  setTimeout(() => {
-    modalContent.innerHTML = "";
-  }, 200);
 }
 
 export default View;

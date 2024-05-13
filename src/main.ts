@@ -6,9 +6,8 @@ import View from "./view";
 function render(libdoc: Libdoc) {
   const storage = new Storage("libdoc");
   const translate = Translate.getInstance();
-  const view = new View(storage, translate);
-  document.title = libdoc.name;
-  view.render(libdoc);
+  const view = new View(libdoc, storage, translate);
+  view.render();
 }
 
 export default render;

@@ -180,7 +180,7 @@
                   <div class="arguments-list-container">
                     <div class="arguments-list">
                     {{#each args}}
-                      {{>arg this}}
+                      {{> arg this}}
                     {{/each}}
                     </div>
                   </div>
@@ -248,11 +248,11 @@
       {{#if union}}
         {{#each nested}}
           {{> typeInfo this}}
-          {{#unlessLast ../nested.length @index}}|{{/unlessLast}}
+          {{#unless @last}}|{{/unless}}
         {{/each}}
       {{else}}
         {{#if typedoc}}
-          <a style="cursor: pointer;" class="type" title="{{t 'typeInfoDialog'}}" onclick="showModal(document.querySelector('#type-modal-{{typedoc}}'))">{{name}}</a>
+          <a style="cursor: pointer;" class="type" data-typedoc={{typedoc}} title="{{t 'typeInfoDialog'}}">{{name}}</a>
         {{else}}
           <span class="type">{{name}}</span>
         {{/if}}
@@ -260,7 +260,7 @@
           [
           {{#each nested}}
             {{> typeInfo this}}
-            {{#unlessLast ../nested.length @index}},{{/unlessLast}}
+            {{#unless @last}},{{/unless}}
           {{/each}}
           ]
         {{/if}}
