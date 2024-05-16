@@ -45,53 +45,22 @@ class View {
     document.title = this.libdoc.name;
     this.setTheme();
     this.renderTemplate("base", this.libdoc, "#root");
-    this.renderTemplate("importing");
-    this.registerTypeDocHandlers("#importing-container");
-    this.renderTemplate("shortcuts");
-    document
-      .getElementById("toggle-keyword-shortcuts")!
-      .addEventListener("click", () => this.toggleShortcuts());
-    document
-      .querySelector(".clear-search")!
-      .addEventListener("click", () => this.clearSearch());
-    document
-      .querySelector(".search-input")!
-      .addEventListener("keydown", () => delay(() => this.searching(), 150));
-    this.renderTemplate("keyword-shortcuts");
-    document
-      .querySelectorAll("a.match")
-      .forEach((e) => e.addEventListener("click", this.closeMenu));
+    this.renderImporting();
+    this.renderShortcuts();
     this.renderKeywords();
-    document.getElementById("keyword-statistics-header")!.innerText =
-      "" + this.libdoc.keywords.length;
     this.renderTemplate("data-types");
     this.renderTemplate("footer");
-    const params = new URLSearchParams(window.location.search);
-    let selectedTag = "";
-    if (params.has("tag")) {
-      selectedTag = params.get("tag")!;
-      this.tagSearch(selectedTag, window.location.hash);
-    }
-    if (this.libdoc.tags.length) {
-      this.libdoc.selectedTag = selectedTag;
-      this.renderTemplate("tags-shortcuts");
-      document.getElementById("tags-shortcuts-container")!.onchange = (e) => {
-        const value = (e.target as HTMLSelectElement).selectedOptions[0].value;
-        if (value != "") {
-          this.tagSearch(value);
-        } else {
-          this.clearTagSearch();
-        }
-      };
-    }
-    this.scrollToHash();
+    this.initTagSearch();
+    this.initHashEvents();
     setTimeout(() => {
-      document.getElementById("keyword-statistics-header")!.innerText =
-        "" + this.libdoc.keywords.length;
       if (this.storage.get("keyword-wall") === "open") {
         this.openKeywordWall();
       }
     }, 0);
+    createModal();
+  }
+
+  private initHashEvents() {
     window.addEventListener(
       "hashchange",
       function () {
@@ -119,7 +88,50 @@ class View {
       },
       false,
     );
-    createModal();
+    this.scrollToHash();
+  }
+
+  private initTagSearch() {
+    const params = new URLSearchParams(window.location.search);
+    let selectedTag = "";
+    if (params.has("tag")) {
+      selectedTag = params.get("tag")!;
+      this.tagSearch(selectedTag, window.location.hash);
+    }
+    if (this.libdoc.tags.length) {
+      this.libdoc.selectedTag = selectedTag;
+      this.renderTemplate("tags-shortcuts");
+      document.getElementById("tags-shortcuts-container")!.onchange = (e) => {
+        const value = (e.target as HTMLSelectElement).selectedOptions[0].value;
+        if (value != "") {
+          this.tagSearch(value);
+        } else {
+          this.clearTagSearch();
+        }
+      };
+    }
+  }
+
+  private renderImporting() {
+    this.renderTemplate("importing");
+    this.registerTypeDocHandlers("#importing-container");
+  }
+
+  private renderShortcuts() {
+    this.renderTemplate("shortcuts");
+    document
+      .getElementById("toggle-keyword-shortcuts")!
+      .addEventListener("click", () => this.toggleShortcuts());
+    document
+      .querySelector(".clear-search")!
+      .addEventListener("click", () => this.clearSearch());
+    document
+      .querySelector(".search-input")!
+      .addEventListener("keydown", () => delay(() => this.searching(), 150));
+    this.renderTemplate("keyword-shortcuts");
+    document
+      .querySelectorAll("a.match")
+      .forEach((e) => e.addEventListener("click", this.closeMenu));
   }
 
   private registerTypeDocHandlers(container: string) {
@@ -142,6 +154,8 @@ class View {
       });
     });
     this.registerTypeDocHandlers("#keywords-container");
+    document.getElementById("keyword-statistics-header")!.innerText =
+      "" + this.libdoc.keywords.length;
   }
 
   setTheme() {
@@ -272,8 +286,8 @@ class View {
       if (!kw.hidden) keywordMatchCount++;
       return kw;
     });
-    this.renderTemplate("keyword-shortcuts", result as Libdoc);
-    this.renderKeywords(result as Libdoc);
+    this.renderTemplate("keyword-shortcuts", result);
+    this.renderKeywords(result);
     if (this.libdoc.tags.length) {
       this.libdoc.selectedTag = include.tagsExact ? pattern : "";
       this.renderTemplate("tags-shortcuts");
@@ -324,10 +338,9 @@ class View {
     this.renderTemplate("keyword-shortcuts");
     this.renderKeywords();
     if (this.libdoc.tags.length) {
+      this.libdoc.selectedTag = "";
       this.renderTemplate("tags-shortcuts");
     }
-    document.getElementById("keyword-statistics-header")!.innerText =
-      `${this.libdoc.keywords.length}`;
     history.replaceState && history.replaceState(null, "", location.pathname);
   }
 
