@@ -1,10 +1,10 @@
-function regexpEscape(string) {
+function regexpEscape(string: string) {
   return string.replace(/[-[\]{}()+?*.,\\^$|#]/g, "\\$&");
 }
 
 const delay = (function () {
-  let timer = 0;
-  return function (callback, ms) {
+  let timer: NodeJS.Timeout;
+  return function (callback: () => void, ms: number) {
     clearTimeout(timer);
     timer = setTimeout(callback, ms);
   };
