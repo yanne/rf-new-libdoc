@@ -35,10 +35,15 @@ class View {
         ? options.fn(this)
         : options.inverse(this);
     });
-    registerPartial("arg", "argument-template");
-    registerPartial("typeInfo", "type-info-template");
-    registerPartial("keyword", "keyword-template");
-    registerPartial("dataType", "data-type-template");
+    this.registerPartial("arg", "argument-template");
+    this.registerPartial("typeInfo", "type-info-template");
+    this.registerPartial("keyword", "keyword-template");
+    this.registerPartial("dataType", "data-type-template");
+  }
+
+  private registerPartial(name: string, id: string) {
+    const content = document.getElementById(id)?.innerHTML;
+    Handlebars.registerPartial(name, Handlebars.compile(content));
   }
 
   render() {
@@ -158,21 +163,11 @@ class View {
       "" + this.libdoc.keywords.length;
   }
 
-  setTheme() {
+  private setTheme() {
     document.documentElement.setAttribute("data-theme", this.getTheme());
   }
 
-  scrollToHash() {
-    if (window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      const elem = document.getElementById(decodeURIComponent(hash));
-      if (elem != null) {
-        elem.scrollIntoView();
-      }
-    }
-  }
-
-  getTheme() {
+  private getTheme() {
     if (this.libdoc["theme"]) {
       return this.libdoc["theme"];
     } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -182,7 +177,17 @@ class View {
     }
   }
 
-  tagSearch(tag: string, hash?: string) {
+  private scrollToHash() {
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const elem = document.getElementById(decodeURIComponent(hash));
+      if (elem != null) {
+        elem.scrollIntoView();
+      }
+    }
+  }
+
+  private tagSearch(tag: string, hash?: string) {
     (
       document.getElementsByClassName("search-input")[0] as HTMLInputElement
     ).value = "";
@@ -194,7 +199,7 @@ class View {
     document.getElementById("keyword-shortcuts-container")!.scrollTop = 0;
   }
 
-  clearTagSearch() {
+  private clearTagSearch() {
     (
       document.getElementsByClassName("search-input")[0] as HTMLInputElement
     ).value = "";
@@ -203,7 +208,7 @@ class View {
     this.resetKeywords();
   }
 
-  searching() {
+  private searching() {
     this.searchTime = Date.now();
     const value = (
       document.getElementsByClassName("search-input")![0] as HTMLInputElement
@@ -222,7 +227,7 @@ class View {
     }
   }
 
-  highlightMatches(string: string, include, givenSearchTime?: number) {
+  private highlightMatches(string: string, include, givenSearchTime?: number) {
     if (givenSearchTime && givenSearchTime !== this.searchTime) {
       return;
     }
@@ -259,8 +264,8 @@ class View {
     }
   }
 
-  markMatches(
-    pattern,
+  private markMatches(
+    pattern: string,
     include,
     givenSearchTime?: number,
     callback?: FrameRequestCallback,
@@ -272,8 +277,8 @@ class View {
     if (include.tagsExact) {
       patternRegexp = "^" + patternRegexp + "$";
     }
-    let regexp = new RegExp(patternRegexp, "i");
-    let test = regexp.test.bind(regexp);
+    const regexp = new RegExp(patternRegexp, "i");
+    const test = regexp.test.bind(regexp);
     let result = {} as Libdoc;
     let keywordMatchCount = 0;
     result.keywords = this.libdoc.keywords.map((orig) => {
@@ -303,13 +308,13 @@ class View {
     }
   }
 
-  closeMenu() {
+  private closeMenu() {
     (
       document.getElementById("hamburger-menu-input")! as HTMLInputElement
     ).checked = false;
   }
 
-  openKeywordWall() {
+  private openKeywordWall() {
     const shortcuts = document.getElementsByClassName("shortcuts")[0];
     shortcuts.classList.add("keyword-wall");
     this.storage.set("keyword-wall", "open");
@@ -317,7 +322,7 @@ class View {
     button!.innerText = "-";
   }
 
-  closeKeywordWall() {
+  private closeKeywordWall() {
     const shortcuts = document.getElementsByClassName("shortcuts")[0];
     shortcuts.classList.remove("keyword-wall");
     this.storage.set("keyword-wall", "close");
@@ -325,7 +330,7 @@ class View {
     button!.innerText = "+";
   }
 
-  toggleShortcuts() {
+  private toggleShortcuts() {
     const shortcuts = document.getElementsByClassName("shortcuts")[0];
     if (shortcuts.classList.contains("keyword-wall")) {
       this.closeKeywordWall();
@@ -334,7 +339,7 @@ class View {
     }
   }
 
-  resetKeywords() {
+  private resetKeywords() {
     this.renderTemplate("keyword-shortcuts");
     this.renderKeywords();
     if (this.libdoc.tags.length) {
@@ -344,7 +349,7 @@ class View {
     history.replaceState && history.replaceState(null, "", location.pathname);
   }
 
-  clearSearch() {
+  private clearSearch() {
     (
       document.getElementsByClassName("search-input")[0] as HTMLInputElement
     ).value = "";
@@ -355,7 +360,7 @@ class View {
     this.resetKeywords();
   }
 
-  renderTemplate(
+  private renderTemplate(
     name: string,
     libdoc: Libdoc | null = null,
     container_selector: string = "",
@@ -373,11 +378,6 @@ class View {
     const target = document.body.querySelector(container_selector)!;
     target.innerHTML = compiled_template(libdoc);
   }
-}
-
-function registerPartial(name: string, id: string) {
-  const content = document.getElementById(id)?.innerHTML;
-  Handlebars.registerPartial(name, Handlebars.compile(content));
 }
 
 export default View;
