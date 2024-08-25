@@ -1,4 +1,3 @@
-import { Libdoc } from "./testdata";
 import Storage from "./storage";
 import Translate from "./i18n/translate";
 import View from "./view";

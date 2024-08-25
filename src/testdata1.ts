@@ -1,20 +1,3 @@
-type Libdoc = {
-  specversion: number;
-  name: string;
-  doc: string;
-  version: string;
-  generated: string;
-  type: string;
-  scope: string;
-  docFormat: string;
-  source: string;
-  lineno: number;
-  tags: Array<any>;
-  inits: Array<any>;
-  keywords: Array<any>;
-  typedocs: Array<any>;
-};
-
 const DATA: Libdoc = {
   specversion: 3,
   name: "lib",
@@ -125,4 +108,4 @@ const DATA: Libdoc = {
   ],
 };
 
-export { Libdoc, DATA };
+export { DATA };

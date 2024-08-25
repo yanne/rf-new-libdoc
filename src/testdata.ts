@@ -1,21 +1,3 @@
-type Libdoc = {
-  specversion: number;
-  name: string;
-  doc: string;
-  version: string;
-  generated: string;
-  type: string;
-  scope: string;
-  docFormat: string;
-  source: string;
-  lineno: number;
-  tags: Array<any>;
-  inits: Array<any>;
-  keywords: Array<any>;
-  typedocs: Array<any>;
-  selectedTag: string;
-};
-
 const DATA: Libdoc = {
   specversion: 3,
   name: "Browser",
@@ -46,8 +28,8 @@ const DATA: Libdoc = {
         {
           name: "_",
           type: null,
-          defaultValue: null,
           kind: "VAR_POSITIONAL",
+          defaultValue: null,
           required: false,
           repr: "*_",
         },
@@ -14845,4 +14827,4 @@ const DATA: Libdoc = {
   ],
 };
 
-export { Libdoc, DATA };
+export { DATA };

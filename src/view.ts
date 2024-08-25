@@ -1,5 +1,4 @@
 import Mark from "mark.js";
-import { Libdoc } from "./testdata";
 import Handlebars from "handlebars";
 import Storage from "./storage";
 import Translate from "./i18n/translate";
@@ -8,10 +7,10 @@ import { regexpEscape, delay } from "./util";
 
 class View {
   storage: Storage;
-  libdoc: Libdoc;
+  libdoc: RuntimeLibdoc;
   searchTime: number;
 
-  constructor(libdoc: Libdoc, storage: Storage, translate: Translate) {
+  constructor(libdoc: RuntimeLibdoc, storage: Storage, translate: Translate) {
     this.libdoc = libdoc;
     this.storage = storage;
     this.initTemplating(translate);
