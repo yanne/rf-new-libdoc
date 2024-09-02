@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- JS MODEL -->
   </head>
   <body>
     <style>
@@ -359,8 +360,15 @@
     </script>
     <script type="module">
       import render from "./main.ts";
-      import { DATA } from "./testdata.ts";
-      render(DATA);
+
+      if (process.env.NODE_ENV !== 'production') {
+        // Only runs in development and will be stripped in production builds.
+        import("./testdata.ts").then(module => render(module.DATA));
+      } else {
+        render(libdoc);
+      }
+
     </script>
   </body>
 </html>
+q
