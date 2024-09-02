@@ -361,13 +361,12 @@
     <script type="module">
       import render from "./main.ts";
 
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== "production") {
         // Only runs in development and will be stripped in production builds.
-        import("./testdata.ts").then(module => render(module.DATA));
+        import("./testdata.ts").then((module) => render(module.DATA));
       } else {
         render(libdoc);
       }
-
     </script>
   </body>
 </html>
